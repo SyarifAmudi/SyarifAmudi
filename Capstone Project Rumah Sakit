@@ -1,0 +1,610 @@
+#Key Pasien: ID, nama, usia, gender, alamat, poli, penyakit, asuransi, tgl masuk, tanggal keluar, status
+#Login Page
+#Staff/Kasir
+#Main Menu Kasir
+#1. Cek Biaya Realtime &/ Pembayaran
+#2. Cek Pembayaran Lama
+#3. Logout
+#Main Menu Database:
+#1. Menampilkan data pasien
+#2. Menambah data pasien
+#3. Mengubah data pasien
+#4. Menghapus data pasien
+#5. Logout
+# Dictionary pasien
+from curses.ascii import isdigit
+
+
+pasien = [
+{'ID' : 220801, 'Nama' : 'Tamara','Gender' : 'P', 'Usia': 29, 'Alamat': 'Jl. Maspati No. 13', 'Keluhan' :'Telinga Kotor','Poli':'     THT     ', 'Asuransi' :'  Ya   ','Tanggal Masuk':'  12/08/2022   ','Tanggal Keluar':'   12/08/2022   ','Status':'Closed'}, 
+{'ID' : 220802, 'Nama' : 'Muhtar','Gender' : 'L', 'Usia': 59, 'Alamat': 'Jl. Manyar No. 8  ', 'Keluhan' :'    Tifus    ','Poli':'   Internis  ', 'Asuransi' :'  Ya   ','Tanggal Masuk':'  13/08/2022   ','Tanggal Keluar':'   22/08/2022   ','Status':'Closed'},
+{'ID' : 220803, 'Nama' : 'Yulius','Gender' : 'L', 'Usia': 43, 'Alamat': 'Jl. Medokan No. 3 ', 'Keluhan' :'     Flu     ','Poli':'     THT     ', 'Asuransi' :' Tidak ','Tanggal Masuk':'  13/08/2022   ','Tanggal Keluar':'   13/08/2022   ','Status':'Closed'}, 
+{'ID' : 220804, 'Nama' : 'Indira','Gender' : 'P', 'Usia': 19, 'Alamat': 'Jl. Wonorejo A-19 ', 'Keluhan' :'  Usus Buntu ','Poli':'    Bedah    ', 'Asuransi' :'  Ya   ','Tanggal Masuk':'  14/08/2022   ','Tanggal Keluar':'   22/08/2022   ','Status':'Closed'},
+{'ID' : 220805, 'Nama' : 'Antono','Gender' : 'L', 'Usia': 27, 'Alamat': 'Jl. Kawatan 5/9A  ', 'Keluhan' :'     DBD     ','Poli':'   Internis  ', 'Asuransi' :'  Ya   ','Tanggal Masuk':'  15/08/2022   ','Tanggal Keluar':'   23/08/2022   ','Status':'Continue'},
+]
+import datetime
+today_split = str(datetime.date.today()).split('-')
+today = "   {}/{}/{}   ".format(today_split[2],today_split[1],today_split[0])
+for i in range(len(pasien)):
+    if(pasien[i]['Status']=='Continue'):
+        pasien[i]['Tanggal Keluar']= today
+
+#1. Main Menu
+def main_menu():
+    while True:
+        pilihanMenu = int(input('''
+    ===============================================
+    \n\tDatabase Pasien Rumah Sakit Purwadhika\n
+    ===============================================
+    
+        
+        1. Menampilkan data pasien 
+        2. Menambah data pasien
+        3. Mengubah data pasien
+        4. Menghapus data pasien
+        5. Administrasi tagihan pasien
+        6. Logout
+        
+        Pilih nomor menu yang ingin diakses: '''))
+
+        if pilihanMenu == 1:
+            view_dp()
+        elif pilihanMenu == 2:
+            add_dp()
+        elif pilihanMenu == 3:
+            update_dp()
+        elif pilihanMenu == 4:
+            del_dp()
+        elif pilihanMenu == 5:
+            bill_dp()
+        elif pilihanMenu == 6:
+            print('  =========== Logging out... See you... ===========')
+            break
+        else:
+            print('Menu not Found')
+
+#tampilan awal submenu dari menu no.1
+def header_submenu_1():
+    print('\n\t----------------------------------')
+    print('\t   Menu Menampilkan Data Pasien   ')
+    print('\t----------------------------------')
+
+def submenu_1():
+    print('''
+    1. Menampilkan Semua Data Pasien
+    2. Menampilkan Data Pasien Tertentu
+    3. Menampilkan Data Pasien per Poli
+    4. Menampilkan Data Pasien yang Masih Dirawat
+    5. Kembali ke Menu Utama 
+    
+    Pilih nomor menu yang ingin diakses: ''')
+
+
+#tampilan awal submenu dari menu no.2
+def header_submenu_2():
+    print('\n  Menu Menambah Data Pasien')
+    print('-----------------------------')
+
+def submenu_2():
+    print('''
+    1. Menambah Data Pasien
+    2. Kembali ke Menu Utama 
+    ''')
+
+#tampilan awal submenu dari menu no.3
+def header_submenu_3():
+    print('\n  Menu Mengubah Data Pasien')
+    print('-----------------------------')
+
+def submenu_3():
+    print('''
+    1. Mengubah Data Pasien
+    2. Kembali ke Menu Utama 
+    ''')
+
+
+#tampilan awal submenu dari menu no.4
+def header_submenu_4():
+    print('\n     Menu Menghapus Data Pasien')
+    print('    ----------------------------')
+
+def submenu_4():
+    print('''
+    1. Menghapus Data Pasien
+    2. Kembali ke Menu Utama 
+    ''')  
+ 
+
+
+#isi submenu 1 (Melihat Data Pasien)
+def view_dp():
+    while True:
+        header_submenu_1()
+        submenu_1()
+        submenu1 = int(input('\nMasukkan nomor submenu yang ingin dijalankan: '))
+        #(1.1.1)
+        if (submenu1 == 1) :
+            header_submenu_1()
+            if len(pasien)!= 0:
+                print('''
+                    \nNo|   ID   | Nama    | Gender  | Usia |       Alamat       |     Keluhan      |        Poli       |  Asuransi | Tanggal Masuk | Tanggal Keluar | Status \n''')
+
+                for i in range(len(pasien)) :
+                    print('{}  | {} | {}  |    {}    |  {}  | {} |  {}   |   {}   |  {}  |{}|{}| {}'.format(i+1,pasien[i]['ID'], pasien[i]['Nama'], pasien[i]['Gender'], pasien[i]['Usia'], pasien[i]['Alamat'],pasien[i]['Keluhan'],pasien[i]['Poli'],pasien[i]['Asuransi'],(pasien[i]['Tanggal Masuk']),(pasien[i]['Tanggal Keluar']),pasien[i]['Status'])) 
+            else:
+                print('Data Pasien Kosong')    
+    #(1.2)    
+        elif (submenu1 == 2) :
+            header_submenu_1()
+            if len(pasien)!= 0:
+                pasien_search = int(input('Masukkan ID Pasien : '))
+                list_id = []
+                for i in range(len(pasien)) :
+                    list_id.append(pasien[i]['ID'])
+                if pasien_search in list_id :
+                        print('''
+                                \n   ID   | Nama    | Gender  | Usia |       Alamat       |     Keluhan      |        Poli       |  Asuransi | Tanggal Masuk | Tanggal Keluar | Status \n''')
+                        print(' {} | {}  |    {}    |  {}  | {} |  {}   |   {}   |  {}  |{}|{}| {}'.format(pasien[list_id.index(pasien_search)]['ID'], pasien[list_id.index(pasien_search)]['Nama'], pasien[list_id.index(pasien_search)]['Gender'], pasien[list_id.index(pasien_search)]['Usia'], pasien[list_id.index(pasien_search)]['Alamat'],pasien[list_id.index(pasien_search)]['Keluhan'],pasien[list_id.index(pasien_search)]['Poli'],pasien[list_id.index(pasien_search)]['Asuransi'],(pasien[list_id.index(pasien_search)]['Tanggal Masuk']),(pasien[list_id.index(pasien_search)]['Tanggal Keluar']),pasien[list_id.index(pasien_search)]['Status']))                                              
+                else:
+                    print('\nID Pasien Tidak Ditemukan')                    
+            else:
+                print('Data Pasien Kosong')
+    #1.3 Menampilkan Data Pasien per Poli
+        elif (submenu1 == 3) :
+            header_submenu_1()
+            if len(pasien)!= 0:
+                macamPoli = []
+                poli_pilihan = []
+                for poli in range(len(pasien)):
+                    if(pasien[poli]['Poli']) not in macamPoli:
+                        macamPoli.append(pasien[poli]['Poli'])
+                    else:
+                        continue    
+                macamPoli.sort()
+                print('Pilihan Poli:\n')
+                for i in range(len(macamPoli)):
+                    print('{}. {} \n'.format(i+1,(macamPoli[i].strip(' '))))
+
+                pilih_poli = int(input('Pilih nomor poli yang ingin ditampilkan datanya: '))
+                if 0<pilih_poli<=len(macamPoli): 
+                    for j in range(len(macamPoli)):
+                        if(j+1 == pilih_poli):
+                            poli_pilihan.append(macamPoli[j])
+                            print('\n   ID   | Nama    | Gender  | Usia |       Alamat       |     Keluhan      |        Poli       |  Asuransi | Tanggal Masuk | Tanggal Keluar | Status \n''')
+                    for k in range(len(pasien)):
+                        if(pasien[k]['Poli']== poli_pilihan[0]):                                        
+                            print(' {} | {}  |    {}    |  {}  | {} |  {}   |   {}   |  {}  |{}|{}| {}'.format(pasien[k]['ID'], pasien[k]['Nama'], pasien[k]['Gender'], pasien[k]['Usia'], pasien[k]['Alamat'],pasien[k]['Keluhan'],pasien[k]['Poli'],pasien[k]['Asuransi'],pasien[k]['Tanggal Masuk'],pasien[k]['Tanggal Keluar'],pasien[k]['Status']))
+                        else:
+                            continue
+                else:
+                    print('\n\tAngka yang anda masukkan salah')            
+            else:
+                print('Data Pasien Kosong')
+
+    #1.4 Menampilkan Data Pasien dalam perawatan
+        elif (submenu1 == 4) :
+            header_submenu_1()
+            if len(pasien)!= 0:
+                sakit = []
+                for i in range(len(pasien)):
+                    if pasien[i]['Status'] == 'Continue':
+                        sakit.append((pasien[i]['ID']))
+                        if(len(sakit)!=0):
+                            print('\n   ID   | Nama    | Gender  | Usia |       Alamat       |     Keluhan      |        Poli       |  Asuransi | Tanggal Masuk | Tanggal Keluar | Status \n')
+                            for j in range(len(pasien)):
+                                for k in range(len(sakit)):
+                                    if(pasien[j]['ID'] == sakit[k]):
+                                        print(' {} | {}  |    {}    |  {}  | {} |  {}   |   {}   |  {}  |{}|{}| {}'.format(pasien[j]['ID'], pasien[j]['Nama'], pasien[j]['Gender'], pasien[j]['Usia'], pasien[j]['Alamat'],pasien[j]['Keluhan'],pasien[j]['Poli'],pasien[j]['Asuransi'],pasien[j]['Tanggal Masuk'],pasien[j]['Tanggal Keluar'],pasien[j]['Status']))   
+                        else:
+                            print('Tidak ada pasien yang sedang dalam perawatan')
+                            continue
+            else:
+                print('Data Pasien Kosong')
+                continue
+    #1.5 (Back to main menu)
+        elif submenu1 == 5:
+            break
+
+    
+    #salah input submenu
+        else :
+            header_submenu_1
+            print('''
+            Angka yang anda masukkan salah
+            ''')
+
+
+#isi submenu 2 (Menambah Data Pasien)
+def add_dp():
+    while True:
+        header_submenu_2()
+        submenu_2()
+        
+        subMenu2 = int(input('Masukkan nomor submenu yang ingin dijalankan (1-2): '))
+        if(subMenu2 == 1):
+
+            pasien_baru = {}
+        #Penambahan ID baru langsung dibuat oleh aplikasi 
+            if(len(pasien)!=0):
+                pasien_baru['ID'] = pasien[len(pasien)-1]['ID'] + 1
+                print('ID Calon Pasien Baru: {}'.format(pasien_baru['ID']))               
+                #Input Data Nama                
+                pasien_baru['Nama'] = (input('Masukkan nama pasien: ').lower()).title()
+                if(len(pasien_baru['Nama'])>=2):
+                    #Input Gender
+                    pasien_baru['Gender'] = (input('Masukkan gender pasien (L/P): ').lower()).capitalize()
+                    if(pasien_baru['Gender']=='L'or pasien_baru['Gender']=='P'):
+                        #Input Usia
+                        pasien_baru['Usia'] = int(input('Masukkan usia pasien: '))
+                        if(pasien_baru['Usia'] != '' and pasien_baru['Usia']>=0):
+                            #Input Alamat                                       
+                            pasien_baru['Alamat'] = input('Masukkan alamat pasien: '.lower().title())
+                            if(len(pasien_baru['Alamat'])>=5):
+                                #Input Keluhan
+                                pasien_baru['Keluhan'] = input('Masukkan keluhan yang dialami pasien: ')
+                                if(pasien_baru['Keluhan'] != '' and pasien_baru['Keluhan'].isdigit()== False):
+                                    #Input Poli
+                                    pasien_baru['Poli'] = input('Masukkan poli yang dibutuhkan (Min. 3 Huruf): ')
+                                    if(len(pasien_baru['Poli'])>=3 and pasien_baru['Poli'].isdigit()== False):
+                                        #Input menggunakan Asuransi
+                                        pasien_baru['Asuransi'] = (input('Apakah pasien menggunakan asuransi? (Ya / Tidak):').lower()).capitalize()
+                                        if(pasien_baru['Asuransi']=='Ya' or pasien_baru['Asuransi']=='Ya'):
+                                        #Input tanggal masuk otomatis mengikuti hari input (menghindari backdate)
+                                            import datetime
+                                            today_split = str(datetime.date.today()).split('-')
+                                            pasien_baru['Tanggal Masuk'] = "{}/{}/{}".format(today_split[2],today_split[1],today_split[0])
+                                            #otomatis cetak tanggal keluar = hari ini
+                                            pasien_baru['Tanggal Keluar'] = '{}/{}/{}'.format(today_split[2],today_split[1],today_split[0])
+                                            #otomatis add status continue karena asumsi add data saat check in
+                                            pasien_baru['Status']='Continue'
+                                            print('Brikut adalah data pasien yang akan ditambahkan:\n{}\n'.format(pasien_baru))
+                                            #Konfirmasi Penambahan data ke data pasien
+                                            konfirmasi_add=(input('Apakah anda yakin data yang diisi sudah benar (Y/N): ').lower()).capitalize()
+                                            if(konfirmasi_add=='Y'):
+                                                pasien.append(pasien_baru)
+                                                print(pasien)
+                                                print('Data pasien baru telah ditambahkan')
+                                                break                                                
+                                            elif(konfirmasi_add=='N'):
+                                                pasien_baru.clear()
+                                                print('Data pasien baru tidak ditambahkan')
+                                                break
+                                            else:
+                                                print('Input salah, masukkan input sesuai perintah (Ya / Tidak)')
+                                        else:
+                                            print('Input salah, silahkan input kembali sesuai perintah (Ya / Tidak)')
+                                            continue                                                           
+                                    else:
+                                        print('Input salah, silahkan input kembali sesuai perintah (Minimal 3 huruf)')
+                                        continue
+                                else:
+                                    print('Input salah, silahkan input kembali sesuai perintah (Tidak boleh kosong dan tidak menggunakan angka)')
+                                    continue
+                            else:
+                                print('Input salah, silahkan input kembali (Minimal 5 karakter)')
+                                continue
+                        else:
+                            print('Input salah, silahkan input usia kembali (Harus angka dan tidak boleh kosong)')
+                            continue
+                    else:
+                        print('Input salah, silahkan input gender kembali sesuai perintah (L/P)')
+                        continue
+                else:
+                    print('Nama kosong / terlalu sedikit (Min.2 Huruf), Silahkan input nama kembali')
+            else:
+                pasien_baru['ID'] = 220801
+        #keluar dari submenu nambah data pasien
+        elif(subMenu2 == 2):
+            konfirm_exit2 = (input('Apakah anda yakin ingin meninggalkan menu update pasien? (Y / N): ').lower()).capitalize()
+            while True:
+                if konfirm_exit2 == 'N':
+                    continue
+                elif konfirm_exit2 == 'Y':
+                    break
+                else:
+                    print('')
+            break
+        else:
+            print('Input angka salah, lakukan input nomor dengan benar (1 / 2)')
+
+#isi submenu 3 (Update Data Pasien)
+def update_dp():
+    while True:
+        header_submenu_3()
+        submenu_3()
+        subMenu3 = int(input('Masukkan nomor submenu yang ingin dijalankan (1-2): '))
+        #mengubah DP
+        if(subMenu3 == 1):
+                if(len(pasien)!=0):
+                    #input id yang ingin diupdate                    
+                    input_id = int(input('Masukkan nomor ID yang ingin diupdate: '))
+                    #list id untuk pencocokan
+                    list_update=[]
+                    for i in range(len(pasien)):
+                        list_update.append(pasien[i]['ID'])
+
+                    if input_id in list_update:
+                            update = pasien[list_update.index(input_id)]
+                            print('Nomor ID pasien yang akan diupdate: {}'.format(input_id))
+                            print('''Data Pasien yang akan diupdate: \n   ID   | Nama    | Gender  | Usia |       Alamat       |     Keluhan      |        Poli       |  Asuransi | Tanggal Masuk | Tanggal Keluar | Status \n''')
+                            print(' {} | {}  |    {}    |  {}  | {} |  {}   |   {}   |  {}  |{}|{}| {}'.format(update['ID'], update['Nama'], update['Gender'], update['Usia'], update['Alamat'],update['Keluhan'],update['Poli'],update['Asuransi'],update['Tanggal Masuk'],update['Tanggal Keluar'],update['Status']))
+                            konfirm_update=(input('Anda yakin ingin mengupdate data ini? (Y/N): ').lower()).capitalize()
+                            if konfirm_update == 'Y':
+                                while True:
+                                    print('\nPilihan key untuk values yang ingin di-update \n1. Nama \n2. Gender \n3. Usia \n4. Alamat \n5. Keluhan \n6. Poli \n7. Asuransi \n8. Back to Update Menu')                                    
+                                    key_update = int(input('Masukkan nomor dari keys yang ingin diupdate: '))
+                                    #Update Nama
+                                    if(key_update == 1):
+                                        while True:
+                                            update_nama = (input('Masukkan nama yang baru: ').lower()).capitalize()
+                                            konfirm_update=(input('Anda yakin ingin mengupdate data ini? (Y/N): ').lower()).capitalize()
+                                            if konfirm_update == 'Y'and len(update_nama)>=2 and update_nama.isdigit()== False:
+                                                update['Nama'] = update_nama
+                                                print('''Data Pasien yang akan diupdate: \n   ID   | Nama    | Gender  | Usia |       Alamat       |     Keluhan      |        Poli       |  Asuransi | Tanggal Masuk | Tanggal Keluar | Status \n''')
+                                                print(' {} | {}  |    {}    |  {}  | {} |  {}   |   {}   |  {}  |{}|{}| {}'.format(update['ID'], update['Nama'], update['Gender'], update['Usia'], update['Alamat'],update['Keluhan'],update['Poli'],update['Asuransi'],update['Tanggal Masuk'],update['Tanggal Keluar'],update['Status']))
+                                                print('Update nama pasien telah berhasil dilakukan')
+                                                break
+                                            elif konfirm_update == 'N':
+                                                print('Nama pasien tidak jadi di-update')
+                                                break
+                                            else:
+                                                print('Input salah, minimal 2 huruf dan tidak boleh menggunakan angka')
+                                    
+                                    #Update Gender
+                                    if(key_update == 2):
+                                        while True:
+                                            update_gender = (input('Masukkan jenis gender pasien yang hendak di-update (L / P): ').lower()).capitalize()
+                                            konfirm_update=(input('Anda yakin ingin mengupdate data ini? (Y/N): ').lower()).capitalize()
+                                            if konfirm_update == 'Y' and (update_gender=='L'or update_gender=='P'):
+                                                update['Gender'] = update_gender
+                                                print('''Data Pasien yang akan diupdate: \n   ID   | Nama    | Gender  | Usia |       Alamat       |     Keluhan      |        Poli       |  Asuransi | Tanggal Masuk | Tanggal Keluar | Status \n''')
+                                                print(' {} | {}  |    {}    |  {}  | {} |  {}   |   {}   |  {}  |{}|{}| {}'.format(update['ID'], update['Nama'], update['Gender'], update['Usia'], update['Alamat'],update['Keluhan'],update['Poli'],update['Asuransi'],update['Tanggal Masuk'],update['Tanggal Keluar'],update['Status']))
+                                                print('Update gender pasien telah berhasil dilakukan')                                                        
+                                                break
+                                            elif konfirm_update == 'N':
+                                                print('Gender pasien tidak jadi di-update')
+                                                break 
+                                            else:
+                                                print('Input salah, lakukan input sesuai ketentuan (L / P)')
+                                            
+
+                                    #Update Usia
+                                    if(key_update == 3):
+                                        while True:
+                                            update_usia = input('Masukkan usia pasien yang hendak di-update: ')
+                                            konfirm_update=(input('Anda yakin ingin mengupdate data ini? (Y/N): ').lower()).capitalize()
+                                            if konfirm_update == 'Y'and update_usia>=0 and update_usia.isalpha == False:
+                                                update['Usia'] = update_usia
+                                                print('''Data Pasien yang akan diupdate: \n   ID   | Nama    | Gender  | Usia |       Alamat       |     Keluhan      |        Poli       |  Asuransi | Tanggal Masuk | Tanggal Keluar | Status \n''')
+                                                print(' {} | {}  |    {}    |  {}  | {} |  {}   |   {}   |  {}  |{}|{}| {}'.format(update['ID'], update['Nama'], update['Gender'], update['Usia'], update['Alamat'],update['Keluhan'],update['Poli'],update['Asuransi'],update['Tanggal Masuk'],update['Tanggal Keluar'],update['Status']))
+                                                print('Update usia pasien telah berhasil dilakukan')
+                                                break
+                                            elif konfirm_update == 'N':
+                                                print('Usia pasien tidak jadi di-update')
+                                                break
+                                            else:
+                                                print('Input salah, lakukan input sesuai ketentuan (Angka saja, mulai dari 0)')
+                                                
+                                    #Update Alamat
+                                    if(key_update == 4):
+                                        while True:
+                                            update_alamat = (input('Masukkan alamat pasien yang hendak di-update (Min. 5 karakter): ').lower()).title()
+                                            konfirm_update=(input('Anda yakin ingin mengupdate data ini? (Y/N): ').lower()).capitalize()
+                                            if konfirm_update == 'Y' and len(update_alamat)>=5:
+                                                update['Alamat'] = update_alamat
+                                                print('''Data Pasien yang akan diupdate: \n   ID   | Nama    | Gender  | Usia |       Alamat       |     Keluhan      |        Poli       |  Asuransi | Tanggal Masuk | Tanggal Keluar | Status \n''')
+                                                print(' {} | {}  |    {}    |  {}  | {} |  {}   |   {}   |  {}  |{}|{}| {}'.format(update['ID'], update['Nama'], update['Gender'], update['Usia'], update['Alamat'],update['Keluhan'],update['Poli'],update['Asuransi'],update['Tanggal Masuk'],update['Tanggal Keluar'],update['Status']))
+                                                print('Update alamat pasien telah berhasil dilakukan')
+                                                break
+                                            elif konfirm_update == 'N'and len(update_alamat)>=5:
+                                                print('Alamat pasien tidak jadi di-update')
+                                                break
+                                            else:
+                                                print('Input salah, lakukan input sesuai ketentuan (Min. 5 karakter)')
+                                                break
+
+                                    #Update Keluhan
+                                    if(key_update == 5):
+                                        while True:
+                                            update_keluhan = (input('Masukkan keluhan pasien yang hendak di-update: ').lower()).capitalize()
+                                            konfirm_update=(input('Anda yakin ingin mengupdate data ini? (Y/N): ').lower()).capitalize()
+                                            if konfirm_update == 'Y'and update_keluhan != '' and update_keluhan.isdigit()== False:
+                                                update['Keluhan'] = update_keluhan
+                                                print('''Data Pasien yang akan diupdate: \n   ID   | Nama    | Gender  | Usia |       Alamat       |     Keluhan      |        Poli       |  Asuransi | Tanggal Masuk | Tanggal Keluar | Status \n''')
+                                                print(' {} | {}  |    {}    |  {}  | {} |  {}   |   {}   |  {}  |{}|{}| {}'.format(update['ID'], update['Nama'], update['Gender'], update['Usia'], update['Alamat'],update['Keluhan'],update['Poli'],update['Asuransi'],update['Tanggal Masuk'],update['Tanggal Keluar'],update['Status']))
+                                                print('Update keluhan pasien telah berhasil dilakukan')
+                                                break
+                                            elif konfirm_update == 'N':
+                                                print('Keluhan pasien tidak jadi di-update')
+                                                break  
+                                            else:
+                                                print('Input salah, lakukan input sesuai ketentuan (Tidak boleh kosong dan tidak boleh menggunakan angka)')
+                                                break
+                                    #Update Poli
+                                    if(key_update == 6):
+                                        while True:
+                                            update_poli = (input('Masukkan poli pasien yang hendak di-update (Min.3 Huruf): ').lower()).title()
+                                            konfirm_update=(input('Anda yakin ingin mengupdate data ini? (Y/N): ').lower()).capitalize()
+                                            if konfirm_update == 'Y'and len(update_poli>=3 and update_poli.isdigit == False):
+                                                update['Poli'] = update_poli
+                                                print('''Data Pasien yang akan diupdate: \n   ID   | Nama    | Gender  | Usia |       Alamat       |     Keluhan      |        Poli       |  Asuransi | Tanggal Masuk | Tanggal Keluar | Status \n''')
+                                                print(' {} | {}  |    {}    |  {}  | {} |  {}   |   {}   |  {}  |{}|{}| {}'.format(update['ID'], update['Nama'], update['Gender'], update['Usia'], update['Alamat'],update['Keluhan'],update['Poli'],update['Asuransi'],update['Tanggal Masuk'],update['Tanggal Keluar'],update['Status']))
+                                                print('Update poli pasien telah berhasil dilakukan')
+                                                break
+                                            elif konfirm_update == 'N':
+                                                print('Poli pasien tidak jadi di-update')
+                                                break
+                                            else:
+                                                print('Input salah, lakukan input sesuai ketentuan (Minimal 3 huruf dan tidak boleh menggunakan angka)')
+                                                break 
+                                    #Update Asuransi
+                                    if(key_update == 7):
+                                        while True:
+                                            update_asuransi = (input('Masukkan penggunaan asuransi pasien yang hendak di-update (Ya / Tidak): ').lower()).capitalize()
+                                            konfirm_update=(input('Anda yakin ingin mengupdate data ini? (Y/N): ').lower()).capitalize()
+                                            if konfirm_update == 'Y' and (update_asuransi == 'Ya' or update_asuransi=='Tidak'):
+                                                update['Asuransi'] = update_asuransi
+                                                print('''Data Pasien yang akan diupdate: \n   ID   | Nama    | Gender  | Usia |       Alamat       |     Keluhan      |        Poli       |  Asuransi | Tanggal Masuk | Tanggal Keluar | Status \n''')
+                                                print(' {} | {}  |    {}    |  {}  | {} |  {}   |   {}   |  {}  |{}|{}| {}'.format(update['ID'], update['Nama'], update['Gender'], update['Usia'], update['Alamat'],update['Keluhan'],update['Poli'],update['Asuransi'],update['Tanggal Masuk'],update['Tanggal Keluar'],update['Status']))
+                                                print('Update penggunaan asuransi pasien telah berhasil dilakukan')
+                                                break
+                                            elif konfirm_update == 'N':
+                                                print('Penggunaan asuransi pasien tidak jadi di-update')
+                                                break
+                                            else:
+                                                print('Input salah, lakukan input sesuai ketentuan (Ya / Tidak)')
+                                                break
+                                    elif(key_update == 8):
+                                        break
+                                    else:
+                                        print('Input salah, lakukan input nomor sesuai ketentuan (1-7)')
+                            elif konfirm_update == 'N':
+                                print('Proses update data dibatalkan')
+                                break
+                            else:
+                                print('Input salah, lakukan input sesuai ketentuan (Y / N)')
+                    else:
+                        print('ID yang anda input tidak terdapat pada database')
+                        break
+
+                elif(len(pasien)==0):
+                    print('Tidak ada data pada database')
+                    break
+
+        elif(subMenu3 == 2):
+            break
+
+        else:
+            print('Input salah, lakukan input nomor sesuai ketentuan (1-2)')
+            continue
+
+#isi submenu 4 (Hapus Data Pasien)
+def del_dp():
+    while True:
+        header_submenu_4()
+        submenu_4()
+        subMenu4 = int(input('Masukkan nomor submenu yang ingin dijalankan (1-2): '))
+        #mengubah DP
+        if(subMenu4 == 1):
+                if(len(pasien)!=0):                    
+                    #input ID yang akan didelete
+                    input_id = int(input('Masukkan nomor ID yang ingin dihapus: '))
+                    #list untuk cari index
+                    list_delete=[]
+                    for i in range(len(pasien)):
+                        list_delete.append(pasien[i]['ID'])
+                    if input_id in list_delete:
+                        delete = pasien[list_delete.index(input_id)]
+                        print('Nomor ID pasien yang akan dihapus: {}'.format(input_id))
+                        print('Data Pasien yang akan dihapus: \n   ID   | Nama    | Gender  | Usia |       Alamat       |     Keluhan      |        Poli       |  Asuransi | Tanggal Masuk | Tanggal Keluar | Status \n''')
+                        print(' {} | {}  |    {}    |  {}  | {} |  {}   |   {}   |  {}  |{}|{}| {}'.format(delete['ID'], delete['Nama'], delete['Gender'], delete['Usia'], delete['Alamat'],delete['Keluhan'],delete['Poli'],delete['Asuransi'],delete['Tanggal Masuk'],delete['Tanggal Keluar'],delete['Status']))
+                        konfirm_delete=(input('Anda yakin ingin menghapus data ini? (Y/N): ').lower()).capitalize()
+                        if konfirm_delete == 'Y':
+                            del pasien[list_delete.index(input_id)]                            
+                            print('Data Pasien yang akan dihapus: \n   ID   | Nama    | Gender  | Usia |       Alamat       |     Keluhan      |        Poli       |  Asuransi | Tanggal Masuk | Tanggal Keluar | Status \n''')
+                            for i in range(len(pasien)):
+                                print(' {} | {}  |    {}    |  {}  | {} |  {}   |   {}   |  {}  |{}|{}| {}'.format(pasien[i]['ID'], pasien[i]['Nama'], pasien[i]['Gender'], pasien[i]['Usia'], pasien[i]['Alamat'], pasien[i]['Keluhan'], pasien[i]['Poli'], pasien[i]['Asuransi'], pasien[i]['Tanggal Masuk'], pasien[i]['Tanggal Keluar'], pasien[i]['Status']))
+                            print('\nData pasien dengan no. ID: {} telah berhasil dihapus'.format(input_id))
+                            break
+                        elif konfirm_delete == 'N':
+                            print('Data pasien dengan no. ID: {} tidak jadi dihapus'.format(input_id))
+                            break
+                        else:
+                            print('Input salah, lakukan input sesuai ketentuan (Y / N)')
+
+                    elif input_id not in list_delete:
+                        print('ID yang anda input tidak terdapat pada database')
+                        break
+
+                elif(len(pasien)==0): 
+                    print('Tidak ada data pada database') 
+                    break 
+
+        elif (subMenu4 == 2):
+            break
+
+        else:
+            print('Input salah, lakukan input nomor sesuai ketentuan (1-2)')
+
+#menu kasir, diperlukan pada update bagian tertentu nantinya (menutup status pasien yg continue)
+def bill_dp():
+    while True:
+        print('\n  Menu Tagihan Pasien')
+        print('-----------------------------')
+        print('1. Pasien Check Out\n2. Kembali ke Main Menu ')
+        submenu_bill = int(input('Masukkan nomor pada menu yang ingin dijalankan: '))
+        if(submenu_bill == 1):
+            if len(pasien)!= 0:
+                sakit = []
+                for i in range(len(pasien)):
+                    if pasien[i]['Status'] == 'Continue':
+                        sakit.append((pasien[i]['ID']))
+                        sakit.append((pasien[i]['Nama']))
+                        print('Berikut list pasien yang masih dirawat {}'.format(sakit))
+                        if(len(sakit)!=0):
+                            id_checkout = int(input('Masukkan No. ID pasien yang akan checkout: '))   
+                            if(id_checkout in sakit):
+                                checkout = pasien[sakit.index(id_checkout)]
+                                import datetime                                       
+                                today = datetime.date.today()             
+                                nama  = checkout['Nama']
+                                tanggal_in = str(checkout['Tanggal Masuk'])
+                                tgl_in_split = tanggal_in.split('/')
+                                int_tgl_in = []
+                                for i in range(len(tgl_in_split)):
+                                    int_tgl_in.append(int(tgl_in_split[i]))
+                                tahun_in = int_tgl_in[2]
+                                bulan_in = int_tgl_in[1]
+                                hari_in = int_tgl_in[0]
+                                tgl_in = datetime.date(tahun_in,bulan_in,hari_in)
+                                delta = today-tgl_in
+                                lama_rawat = int(delta.days)
+                                biaya_kamar = 400000
+                                biaya_rawat_inap = 200000
+                                biaya_rawat_jalan = 50000 
+                                biaya_rawat= 0                                                    
+                                if lama_rawat == 0 and checkout['Asuransi'] == 'Tidak':
+                                        biaya_rawat+=biaya_rawat_jalan
+                                elif lama_rawat >0 and checkout['Asuransi'] == 'Tidak':
+                                        biaya_rawat+=(biaya_rawat_inap * lama_rawat) + (biaya_kamar * lama_rawat)
+                                else:
+                                    biaya_gratis = 0
+                                
+                                while True:
+                                    print('Total biaya perawatan yang harus dibayar adalah: Rp {},-'.format(biaya_rawat))
+                                    pembayaran = int(input('Masukkan jumlah uang untuk anda bayarkan: '))
+                                    if(biaya_rawat == 0):
+                                        print('Terima Kasih, Semoga Sehat Selalu')
+                                        checkout['Status'] == 'Closed'
+                                        break
+                                    elif(pembayaran>biaya_rawat):
+                                        kembali = pembayaran - biaya_rawat
+                                        print('Terima Kasih\n\nUang Kembali Anda: {}'.format(kembali))
+                                        checkout['Status'] == 'Closed'
+                                        break
+                                    elif(pembayaran == biaya_rawat):
+                                        print('Terima Kasih')
+                                        checkout['Status'] == 'Closed'
+                                        break
+                                    else:
+                                        kurang = biaya_rawat - pembayaran
+                                        print('Uang anda kurang sebesar: {}'.format(kurang))                                                                     
+                        else:
+                            print('Tidak ada pasien yang sedang dalam perawatan')                         
+            else:
+                print('Data Pasien Kosong')            
+        if(submenu_bill == 2):
+            break 
+
+
+
+main_menu()        
+
+
+
+
+
+
+
+                            
+
